@@ -7,23 +7,37 @@ import logging
 logger = logging.getLogger("EAWRCSDK")
 
 class EAWRCSDK(dict):
-    def __init__(self, UDP_IP = "127.0.0.1", UDP_PORT = 20777, TIMEOUT_SECONDS = 1):
+    def __init__(self, UDP_IP = "127.0.0.1", UDP_PORT = 20777, TIMEOUT_SECONDS = 1, UDP_PATH = None, CHANNELS_PATH = None):
         self.UDP_IP = UDP_IP
         self.UDP_PORT = UDP_PORT
         self.TIMEOUT_SECONDS = TIMEOUT_SECONDS
         self._frozen = False
+        
+        if UDP_PATH:
+            self.UDP_PATH = UDP_PATH
+        else:
+            self.UDP_PATH = os.path.expanduser(
+                "~/Documents/My Games/WRC/telemetry/readme/udp/wrc.json"
+            )
+        if CHANNELS_PATH:
+            self.CHANNELS_PATH = CHANNELS_PATH
+        else:
+            self.CHANNELS_PATH = os.path.expanduser(
+                "~/Documents/My Games/WRC/telemetry/readme/channels.json"
+            )
+        try:
+            with open(self.UDP_PATH) as f:
+                self.wrc_packet_structure = json.load(f)
+        except FileNotFoundError:
+            print("UDP config file not found. Ensure you've run the game once.")
+            logger.error("Telemetry config files not found. Ensure you've run the game once.")
+            exit()
 
         try:
-            with open(os.path.expanduser(
-                "~/Documents/My Games/WRC/telemetry/readme/udp/wrc.json"
-            )) as f:
-                self.wrc_packet_structure = json.load(f)
-            with open(os.path.expanduser(
-                "~/Documents/My Games/WRC/telemetry/readme/channels.json"
-            )) as f:
+            with open(self.CHANNELS_PATH) as f:
                 self._wrc_channels = json.load(f)["channels"]
         except FileNotFoundError:
-            print("Telemetry config files not found. Ensure you've run the game once.")
+            print("Channel config files not found. Ensure you've run the game once.")
             logger.error("Telemetry config files not found. Ensure you've run the game once.")
             exit()
         
