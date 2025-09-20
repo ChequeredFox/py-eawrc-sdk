@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "eawrcsdk"
+version = "0.0.1"
+requires-python = ">=3.9"
+authors = [
+  { name="Josh Delima", email="jDelima14@gmail.com" }
+]
+description = "Python library to help aid access to EA WRC telemetry"
+keywords = ["EA WRC", "Telemetry", "SDK"]
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/ChequeredFox/py-eawrc-sdk/"
+Issues = "https://github.com/ChequeredFox/py-eawrc-sdk/issues"
