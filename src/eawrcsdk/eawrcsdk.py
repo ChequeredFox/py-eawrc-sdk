@@ -75,6 +75,7 @@ class EAWRCSDK(dict):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind((self.UDP_IP, self.UDP_PORT))
         self.sock.settimeout(self.TIMEOUT_SECONDS)
+        self.sock.setblocking(False)
         logger.info(f"UDP socket listening on port {self.UDP_PORT}")
 
     def close(self):
@@ -88,6 +89,8 @@ class EAWRCSDK(dict):
     def _buffer(self):
         try:
             data, addr = self.sock.recvfrom(2048) # Buffer size for a single packet
+        except socket.error:
+            return None
         except socket.timeout:
             return None
 
@@ -98,10 +101,20 @@ class EAWRCSDK(dict):
                 self[channel_id] = unpacked_data[i]
         else:
             print(f"Received a packet of unexpected size: {len(data)} bytes. Skipping.")
+        if self._frozen: #Flushes buffer
+            while True:
+                try:
+                    data, addr = self.sock.recvfrom(2048)
+                except socket.error:
+                    break
+                except socket.timeout:
+                    break
+        
 
     def freeze_buffer_latest(self):
         self._buffer()
-        self._frozen = True
+        if not self._frozen:
+            self._frozen = True
 
     def unfreeze(self):
         self._frozen = False
